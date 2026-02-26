@@ -1,0 +1,24 @@
+graph TD
+    Q["Query"] --> R
+
+    subgraph LOOP["Confidence Loop"]
+        R["🔍 RETRIEVE<br/>Entity linking → KG node matching<br/>→ 1-2 hop neighborhood expansion<br/>→ Subgraph serialized to text"]
+        R --> CHECK{"Subgraph<br/>sufficient?"}
+        CHECK -->|"Gaps detected"| H["💡 HYPOTHESIZE<br/>Feed query + subgraph + history to LLM<br/>→ Multi-sample candidate triples<br/>→ Consensus aggregation<br/>→ Conflict resolution"]
+        H -->|"New triples added"| KG[("Knowledge Graph<br/>━━━━━━━━━━━━<br/>Updated with high-confidence<br/>facts; contradictions pruned")]
+        KG --> R
+        CHECK -->|"Sufficient"| S["📝 SYNTHESIZE<br/>Pack everything:<br/>query + subgraph + new triples + history<br/>→ Generate answer"]
+        S --> CONF{"Confidence<br/>≥ threshold?"}
+        CONF -->|"No"| R
+    end
+
+    CONF -->|"Yes"| OUT["✅ Final Answer"]
+
+    style R fill:#e3f2fd,stroke:#1565c0,color:#000
+    style H fill:#fff3e0,stroke:#e65100,color:#000
+    style S fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style KG fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style OUT fill:#c8e6c9,stroke:#1b5e20,color:#000
+    style CHECK fill:#fff,stroke:#666,color:#000
+    style CONF fill:#fff,stroke:#666,color:#000
+    style LOOP fill:#fafafa,stroke:#bbb,color:#000
